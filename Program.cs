@@ -4,6 +4,7 @@ using CryptoScopeAPI.Services;
 using CryptoScopeAPI.Features.GetCoins;
 using System.Reflection;
 using CryptoScopeAPI.Mappings;
+using CryptoScopeAPI.Dtos;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddHttpClient<ICoinGeckoClient, CoinGeckoClient>(client =>
@@ -21,7 +22,9 @@ builder.Services.AddCors(options =>
         policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod();
     });
 });
-
+builder.Services.AddHostedService<CoinListSyncService>();
+builder.Services.Configure<CoinSyncSettings>(
+    builder.Configuration.GetSection("CoinSync"));
 var app = builder.Build();
 
 app.UseCors();
