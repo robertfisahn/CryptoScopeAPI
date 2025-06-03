@@ -5,6 +5,7 @@ using CryptoScopeAPI.Features.GetCoins;
 using System.Reflection;
 using CryptoScopeAPI.Mappings;
 using CryptoScopeAPI.Dtos;
+using CryptoScopeAPI.Features.GetSearchCoin;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddHttpClient<ICoinGeckoClient, CoinGeckoClient>(client =>
@@ -23,6 +24,8 @@ builder.Services.AddCors(options =>
     });
 });
 builder.Services.AddHostedService<CoinListSyncService>();
+builder.Services.AddHostedService<SearchCoinSyncService>();
+
 builder.Services.Configure<CoinSyncSettings>(
     builder.Configuration.GetSection("CoinSync"));
 var app = builder.Build();
@@ -39,6 +42,12 @@ app.MapGet("/api/coins", async (IMediator mediator) =>
 {
     var result = await mediator.Send(new GetCoinsQuery());
     return Results.Ok(result);
+});
+
+app.MapGet("/api/coins/search", async (IMediator mediator) =>
+{
+    var searchCoins = await mediator.Send(new GetSearchCoinQuery());
+    return Results.Ok(searchCoins);
 });
 
 app.Run();
