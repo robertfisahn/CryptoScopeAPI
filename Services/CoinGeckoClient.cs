@@ -46,5 +46,26 @@ namespace CryptoScopeAPI.Services
             [JsonPropertyName("market_cap")]
             public decimal MarketCap { get; set; }
         }
+
+        public async Task<List<SearchCoin>> GetSearchCoinsAsync()
+        {
+            var response = await _http.GetFromJsonAsync<List<SearchCoinGeckoResponse>>(
+                "https://api.coingecko.com/api/v3/coins/list"
+            );
+
+            return response!.Select(c => new SearchCoin
+            {
+                CoinId = c.Id,
+                Name = c.Name,
+                Symbol = c.Symbol
+            }).ToList();
+        }
+
+        private class SearchCoinGeckoResponse
+        {
+            [JsonPropertyName("id")] public string Id { get; set; } = default!;
+            [JsonPropertyName("symbol")] public string Symbol { get; set; } = default!;
+            [JsonPropertyName("name")] public string Name { get; set; } = default!;
+        }
     }
 }
