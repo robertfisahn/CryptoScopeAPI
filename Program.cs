@@ -6,6 +6,9 @@ using System.Reflection;
 using CryptoScopeAPI.Mappings;
 using CryptoScopeAPI.Dtos;
 using CryptoScopeAPI.Features.GetSearchCoin;
+using CryptoScopeAPI.Features.GetCoinDetails;
+using CryptoScopeAPI.Features.GetCoinMarketChart;
+using CryptoScopeAPI;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddHttpClient<ICoinGeckoClient, CoinGeckoClient>(client =>
@@ -48,6 +51,18 @@ app.MapGet("/api/coins/search", async (IMediator mediator) =>
 {
     var searchCoins = await mediator.Send(new GetSearchCoinQuery());
     return Results.Ok(searchCoins);
+});
+
+app.MapGet("/api/coins/{id}", async (string id, IMediator mediator) =>
+{
+    var result = await mediator.Send(new GetCoinDetailsQuery(id));
+    return Results.Ok(result);
+});
+
+app.MapGet("/api/coins/{id}/market_chart", async (string id, string days, IMediator mediator) =>
+{
+    var result = await mediator.Send(new GetCoinMarketChartQuery(id, days));
+    return Results.Ok(result);
 });
 
 app.Run();

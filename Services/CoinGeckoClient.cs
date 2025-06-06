@@ -1,9 +1,12 @@
+using AutoMapper;
+using CryptoScopeAPI.Dtos;
+using CryptoScopeAPI.Dtos.CoinGecko;
 using CryptoScopeAPI.Models;
 using System.Text.Json.Serialization;
 
 namespace CryptoScopeAPI.Services
 {
-    public class CoinGeckoClient(HttpClient _http) : ICoinGeckoClient
+    public class CoinGeckoClient(HttpClient _http, IMapper _mapper) : ICoinGeckoClient
     {
         public async Task<List<Coin>> GetTopMarketCoinsAsync()
         {
@@ -66,6 +69,32 @@ namespace CryptoScopeAPI.Services
             [JsonPropertyName("id")] public string Id { get; set; } = default!;
             [JsonPropertyName("symbol")] public string Symbol { get; set; } = default!;
             [JsonPropertyName("name")] public string Name { get; set; } = default!;
+        }
+
+        public async Task<CoinDetailsDto> GetCoinDetailsAsync(string id, CancellationToken cancellationToken)
+        {
+            var response = await _http.GetFromJsonAsync<CoinDetailsGeckoResponse>(
+                $"https://api.coingecko.com/api/v3/coins/{id}",
+                cancellationToken
+            );
+            if (response == null)
+            {
+                return null!;
+            }
+            return _mapper.Map<CoinDetailsDto>(response);
+        }
+
+        public async Task<CoinMarketChartGeckoResponse> GetCoinMarketChartAsync(string id, string days, CancellationToken cancellationToken)
+        {
+            var response = await _http.GetFromJsonAsync<CoinMarketChartGeckoResponse>(
+                $"https://api.coingecko.com/api/v3/coins/{id}/market_chart?vs_currency=usd&days={days}",
+                cancellationToken
+            );
+            if (response == null)
+            {
+                return null!;
+            }
+            return response;
         }
     }
 }

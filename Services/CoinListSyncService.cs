@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Options;
 using CryptoScopeAPI.Services;
 using CryptoScopeAPI.Dtos;
+using CryptoScopeAPI;
 
 public class CoinListSyncService(IServiceProvider _provider, ILogger<CoinListSyncService> _logger, IOptions<CoinSyncSettings> _settings) : BackgroundService
 {
