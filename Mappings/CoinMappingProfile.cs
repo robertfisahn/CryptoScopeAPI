@@ -2,6 +2,8 @@
 using CryptoScopeAPI.Models;
 using CryptoScopeAPI.Dtos;
 using CryptoScopeAPI.Dtos.CoinGecko;
+using System.Diagnostics;
+using System.Text.Json;
 
 namespace CryptoScopeAPI.Mappings
 {
@@ -45,6 +47,16 @@ namespace CryptoScopeAPI.Mappings
               .ForMember(dest => dest.MarketCapUsd, opt => opt.MapFrom(src => src.MarketData!.MarketCap!.Usd ?? 0))
               .ForMember(dest => dest.PriceChangePercentage24h, opt => opt.MapFrom(src => src.MarketData!.PriceChangePercentage24h ?? 0))
               .ForMember(dest => dest.LastUpdated, opt => opt.Ignore());
+
+            CreateMap<CoinMarketChart, CoinMarketChartDto>()
+                .ForMember(dest => dest.Prices, opt => opt.MapFrom(src => JsonSerializer.Deserialize<List<List<decimal>>>(src.PricesJson, (JsonSerializerOptions?)null)!))
+                .ForMember(dest => dest.MarketCaps, opt => opt.MapFrom(src => JsonSerializer.Deserialize<List<List<decimal>>>(src.MarketCapsJson, (JsonSerializerOptions?)null)!))
+                .ForMember(dest => dest.TotalVolumes, opt => opt.MapFrom(src => JsonSerializer.Deserialize<List<List<decimal>>>(src.TotalVolumesJson, (JsonSerializerOptions?)null)!));
+
+             CreateMap<CoinMarketChartGeckoResponse, CoinMarketChart>()
+                .ForMember(dest => dest.PricesJson, opt => opt.MapFrom(src => JsonSerializer.Serialize(src.Prices, (JsonSerializerOptions?)null)!))
+                .ForMember(dest => dest.MarketCapsJson, opt => opt.MapFrom(src => JsonSerializer.Serialize(src.MarketCaps, (JsonSerializerOptions?)null)!))
+                .ForMember(dest => dest.TotalVolumesJson, opt => opt.MapFrom(src => JsonSerializer.Serialize(src.TotalVolumes, (JsonSerializerOptions?)null)!));
         }
     }
 

@@ -83,5 +83,18 @@ namespace CryptoScopeAPI.Services
             }
             return _mapper.Map<CoinDetailsDto>(response);
         }
+
+        public async Task<CoinMarketChartGeckoResponse> GetCoinMarketChartAsync(string id, string days, CancellationToken cancellationToken)
+        {
+            var response = await _http.GetFromJsonAsync<CoinMarketChartGeckoResponse>(
+                $"https://api.coingecko.com/api/v3/coins/{id}/market_chart?vs_currency=usd&days={days}",
+                cancellationToken
+            );
+            if (response == null)
+            {
+                return null!;
+            }
+            return response;
+        }
     }
 }
