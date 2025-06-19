@@ -2,7 +2,6 @@
 using CryptoScopeAPI.Models;
 using CryptoScopeAPI.Dtos;
 using CryptoScopeAPI.Dtos.CoinGecko;
-using System.Diagnostics;
 using System.Text.Json;
 
 namespace CryptoScopeAPI.Mappings
@@ -15,6 +14,17 @@ namespace CryptoScopeAPI.Mappings
               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.CoinId))
               .ForMember(dest => dest.Image, opt => opt.MapFrom(src => src.ImageUrl))
               .ForMember(dest => dest.CurrentPrice, opt => opt.MapFrom(src => src.CurrentPriceUsd));
+
+            CreateMap<CoinListGeckoResponse, Coin>()
+                .ForMember(dest => dest.Id, opt => opt.Ignore())
+                .ForMember(dest => dest.CoinId, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.ImageUrl, opt => opt.MapFrom(src => src.Image))
+                .ForMember(dest => dest.CurrentPriceUsd, opt => opt.MapFrom(src => src.CurrentPrice))
+                .ForMember(dest => dest.MarketCapUsd, opt => opt.MapFrom(src => src.MarketCap));
+
+            CreateMap<CoinSearchGeckoResponse, SearchCoin>()
+                .ForMember(dest => dest.Id, opt => opt.Ignore())
+                .ForMember(Coin => Coin.CoinId, opt => opt.MapFrom(src => src.Id));
 
             CreateMap<CoinDetails, CoinDetailsDto>()
               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.CoinId))
@@ -31,11 +41,11 @@ namespace CryptoScopeAPI.Mappings
                   PriceChangePercentage24h = src.PriceChangePercentage24h
               }));
             CreateMap<CoinDetailsGeckoResponse, CoinDetailsDto>();
-            CreateMap<CoinDetailsGeckoResponse.CoinImage, CoinDetailsDto.CoinImage>();
-            CreateMap<CoinDetailsGeckoResponse.CoinMarketData, CoinDetailsDto.CoinMarketData>();
-            CreateMap<CoinDetailsGeckoResponse.UsdValue, CoinDetailsDto.UsdValue>();
+            CreateMap<CoinDetailsGeckoResponse.CoinImage, CoinDetailsDto>();
+            CreateMap<CoinDetailsGeckoResponse.CoinMarketData, CoinDetailsDto>();
+            CreateMap<CoinDetailsGeckoResponse.UsdValue, CoinDetailsDto>();
 
-            CreateMap<CoinDetailsDto, CoinDetails>()
+            CreateMap<CoinDetailsGeckoResponse, CoinDetails>()
               .ForMember(dest => dest.Id, opt => opt.Ignore())
               .ForMember(dest => dest.CoinId, opt => opt.MapFrom(src => src.Id))
               .ForMember(dest => dest.Symbol, opt => opt.MapFrom(src => src.Symbol))

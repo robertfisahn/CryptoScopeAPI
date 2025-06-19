@@ -1,16 +1,19 @@
-﻿using CryptoScopeAPI.Models;
+﻿using AutoMapper;
+using CryptoScopeAPI.Dtos;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
 namespace CryptoScopeAPI.Features.GetSearchCoin
 {
-    public class GetSearchCoinsQueryHandler(AppDbContext _db) : IRequestHandler<GetSearchCoinQuery, List<SearchCoin>>
+    public class GetSearchCoinsQueryHandler(AppDbContext _db, IMapper _mapper) : IRequestHandler<GetSearchCoinQuery, List<SearchCoinDto>>
     {
-        public async Task<List<SearchCoin>> Handle(GetSearchCoinQuery request, CancellationToken cancellationToken)
+        public async Task<List<SearchCoinDto>> Handle(GetSearchCoinQuery request, CancellationToken cancellationToken)
         {
-            return await _db.SearchCoins
+            var existing = await _db.SearchCoins
                 .OrderBy(c => c.Name)
                 .ToListAsync(cancellationToken);
+
+            return _mapper.Map<List<SearchCoinDto>>(existing);
         }
     }
 }
