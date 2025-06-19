@@ -1,9 +1,10 @@
 ﻿using Microsoft.Extensions.Options;
-using CryptoScopeAPI.Services;
 using CryptoScopeAPI.Dtos;
-using CryptoScopeAPI;
+using AutoMapper;
+using CryptoScopeAPI.Models;
 
-public class CoinListSyncService(IServiceProvider _provider, ILogger<CoinListSyncService> _logger, IOptions<CoinSyncSettings> _settings) : BackgroundService
+namespace CryptoScopeAPI.Services;
+public class CoinListSyncService(IServiceProvider _provider, ILogger<CoinListSyncService> _logger, IOptions<CoinSyncSettings> _settings, IMapper _mapper) : BackgroundService
 {
     private readonly CoinSyncSettings coinSyncSettings = _settings.Value;
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -17,9 +18,10 @@ public class CoinListSyncService(IServiceProvider _provider, ILogger<CoinListSyn
                 var coingecko = scope.ServiceProvider.GetRequiredService<ICoinGeckoClient>();
 
                 var freshCoins = await coingecko.GetTopMarketCoinsAsync();
+                var mappedCoins = _mapper.Map<List<Coin>>(freshCoins);
 
                 db.Coins.RemoveRange(db.Coins);
-                await db.Coins.AddRangeAsync(freshCoins, stoppingToken);
+                await db.Coins.AddRangeAsync(mappedCoins, stoppingToken);
                 await db.SaveChangesAsync(stoppingToken);
 
                 _logger.LogInformation("Top coin list refreshed at {Time}", DateTime.Now);
